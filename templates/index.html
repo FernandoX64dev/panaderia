@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ negocio.nombre }}: {{ negocio.slogan }}">
+    <title>{{ negocio.nombre }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <script src="{{ url_for('static', filename='js/tema.js') }}"></script>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-md fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#inicio">{{ negocio.nombre }}</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav ms-auto align-items-md-center gap-md-3">
+                    <li class="nav-item"><a class="nav-link" href="#productos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ubicacion">Ubicación</a></li>
+                    <li class="nav-item">
+                        <button id="btn-tema" class="btn btn-tema" type="button" aria-label="Cambiar tema">
+                            <i id="icono-tema" class="bi bi-clock-history"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header id="inicio" class="hero">
+        <div class="container reveal">
+            <p class="linea">Panadería artesanal</p>
+            <h1>{{ negocio.slogan }}</h1>
+            <a href="#productos" class="btn btn-acento mt-4">Ver productos <i class="bi bi-arrow-down ms-1"></i></a>
+        </div>
+    </header>
+
+    <main>
+
+    <section id="destacados" class="seccion pb-0">
+        <div class="container reveal">
+            <h2 class="mb-4">Recién horneado</h2>
+            <div id="carrusel" class="carousel slide carrusel" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for p in productos %}
+                    <button type="button" data-bs-target="#carrusel" data-bs-slide-to="{{ loop.index0 }}"
+                        {% if loop.first %}class="active" aria-current="true"{% endif %}
+                        aria-label="{{ p.nombre }}"></button>
+                    {% endfor %}
+                </div>
+
+                <div class="carousel-inner">
+                    {% for p in productos %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}" data-bs-interval="4000">
+                        <img src="{{ url_for('static', filename='img/' + p.imagen) }}" class="d-block w-100" alt="{{ p.nombre }}">
+                        <div class="carousel-caption">
+                            <h3>{{ p.nombre }}</h3>
+                            <p class="mb-0">{{ p.descripcion }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carrusel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carrusel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+        <section id="productos" class="seccion">
+            <div class="container">
+                <h2 class="mb-5 reveal">Nuestros productos</h2>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+                    {% for p in productos %}
+                    <div class="col reveal" style="--retraso: {{ loop.index0 * 100 }}ms">
+                        <article class="producto">
+                            <div class="marco">
+                                <img src="{{ url_for('static', filename='img/' + p.imagen) }}" alt="{{ p.nombre }}" loading="lazy">
+                            </div>
+                            <div class="d-flex justify-content-between align-items-baseline mt-3">
+                                <h3 class="h5 mb-0">{{ p.nombre }}</h3>
+                                <span class="precio">${{ p.precio }}</span>
+                            </div>
+                            <p class="text-body-secondary small mt-1">{{ p.descripcion }}</p>
+                        </article>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section id="ubicacion" class="seccion seccion-alt">
+            <div class="container">
+                <h2 class="mb-5 reveal">Ubicación</h2>
+                <div class="row g-5 align-items-center">
+                    <div class="col-lg-5 reveal">
+                        <div class="info-item">
+                            <i class="bi bi-geo-alt"></i>
+                            <div><strong>Dirección</strong><br>{{ negocio.direccion }}</div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-clock"></i>
+                            <div><strong>Horario</strong><br>{{ negocio.horario }}</div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-telephone"></i>
+                            <div><strong>Teléfono</strong><br>
+                                <a href="tel:{{ negocio.telefono | replace(' ', '') }}">{{ negocio.telefono }}</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 reveal">
+                        <iframe class="mapa"
+                            src="https://www.google.com/maps?q={{ negocio.direccion | urlencode }}&output=embed"
+                            loading="lazy" allowfullscreen title="Mapa de ubicación"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-4">
+        <small class="text-body-secondary">&copy; 2026 {{ negocio.nombre }}</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/animaciones.js') }}"></script>
+</body>
+</html>
